@@ -1,0 +1,44 @@
+version: "3.9"
+services:
+  backend:
+    container_name: backend
+    build: ./backend
+    ports:
+      - 8082:8082
+    environment:
+      - OTEL_TRACES_EXPORTER=jaeger_thrift
+      - OTEL_SERVICE_NAME=backend-service
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger-agent:14268/api/traces
+
+  frontend:
+    container_name: frontend
+    build: ./frontend
+    ports:
+      - 8081:8081
+    environment:
+      - OTEL_TRACES_EXPORTER=jaeger_thrift
+      - OTEL_SERVICE_NAME=frontend-service
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger-agent:14268/api/traces
+
+  trial:
+    container_name: trial
+    build: ./trial
+    ports:
+      - 8083:8083
+    environment:
+      - OTEL_TRACES_EXPORTER=jaeger_thrift
+      - OTEL_SERVICE_NAME=trial-service
+      - OTEL_EXPORTER_JAEGER_ENDPOINT=http://jaeger-agent:14268/api/traces
+
+  jaeger-agent:
+    image: "jaegertracing/opentelemetry-all-in-one:latest"
+    container_name: jaeger
+    ports:
+      - 6831:6831 # UDP - agent - Accepts jaeger.thrift in *compact* form (preferred)
+      - 6832:6832 # UDP - agent- Accepts jaeger.thrift in *binary* form (for NodeJS)
+      - 5778:5778 # HTTP - agent - serve configs, sampling strategies
+      - 14250:14250 # gRPC - collector - Used by jaeger-agent to send spans in model.proto format
+      - 14268:14268 # (For ORIGINAL image, not OpenTelemetry) HTTP - collector - Accepts spans directly from clients in jaeger.thrift format over *binary* thrift protocol
+      - 16685:16685 # gRPC - UI and query service - Protobuf/gRPC QueryService
+      - 16686:16686 # HTTP - UI and query service - Accepts UI at path "/" and "/api/*" endpoints
+      - 55680:55680 # (For OpenTelemetry Image) HTTP - collector - Accepts spans directly from clients in jaeger.thrift format over *binary* thrift protocol
