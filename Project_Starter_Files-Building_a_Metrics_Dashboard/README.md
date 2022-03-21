@@ -2,10 +2,15 @@
 
 ## Verify the monitoring installation
 
-*TODO:* run `kubectl` command to show the running pods and services for all components. Take a screenshot of the output and include it here to verify the installation
+- Answer as screenshot 'monitoring-installation.png' in 'answer-img' directory
+
+Performed: run `kubectl` command to show the running pods and services for all components. Take a screenshot of the output and include it here to verify the installation
 
 ## Setup the Jaeger and Prometheus source
-*TODO:* Expose Grafana to the internet and then setup Prometheus as a data source. Provide a screenshot of the home page after logging into Grafana.
+
+- Answer as screenshot 'grafana-homepage.png' in 'answer-img' directory
+
+Performed: Expose Grafana to the internet and then setup Prometheus (and Jaeger) as a data source. Provide a screenshot of the home page after logging into Grafana.
 
 ## Create a Basic Dashboard
 *TODO:* Create a dashboard in Grafana that shows Prometheus as a source. Take a screenshot and include it here.
@@ -20,7 +25,11 @@
 *TODO:* Create a dashboard to measure the uptime of the frontend and backend services We will also want to measure to measure 40x and 50x errors. Create a dashboard that show these values over a 24 hour period and take a screenshot.
 
 ## Tracing our Flask App
-*TODO:*  We will create a Jaeger span to measure the processes on the backend. Once you fill in the span, provide a screenshot of it here. Also provide a (screenshot) sample Python file containing a trace and span code used to perform Jaeger traces on the backend service.
+
+- First screenshot (Jaeger UI) in 'Flask-tracing-backend-service-Jaeger-ui.png' in answer-img directory.
+- Second screenshot (sourcecode) in 'Flask-tracing-backend-service-SourceCode'
+
+Performed: We will create a Jaeger span to measure the processes on the backend. Once you fill in the span, provide a screenshot of it here. Also provide a (screenshot) sample Python file containing a trace and span code used to perform Jaeger traces on the backend service.
 
 ## Jaeger in Dashboards
 *TODO:* Now that the trace is running, let's add the metric to our current Grafana dashboard. Once this is completed, provide a screenshot of it here.

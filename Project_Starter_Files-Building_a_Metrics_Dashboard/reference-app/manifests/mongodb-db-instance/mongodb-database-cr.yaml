@@ -1,0 +1,22 @@
+---
+apiVersion: mongodbcommunity.mongodb.com/v1
+kind: MongoDBCommunity
+metadata:
+  name: example-mongodb
+  namespace: default
+spec:
+  members: 3
+  type: ReplicaSet
+  version: "4.4.0"
+  security:
+    authentication:
+      modes: ["SCRAM"]
+  users:
+    - name: my-user
+      db: admin
+      passwordSecretRef: 
+        name: my-mongodb-user-password # the name of the secret we created
+      roles: # the roles that we want to the user to have
+        - name: clusterAdmin
+          db: admin
+      scramCredentialsSecretName: example-mongodb
