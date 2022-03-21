@@ -16,9 +16,15 @@ spec:
     spec:
       containers:
       - name: backend
-        image: alonsotm/reference-app_backend:v2.0.0
+        image: alonsotm/reference-app_backend:v2.1.0
         ports:
         - containerPort: 8082
+        env:
+        - name: MONGODB_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: my-mongodb-user-password
+              key: password
 ---
 apiVersion: v1
 kind: Service
