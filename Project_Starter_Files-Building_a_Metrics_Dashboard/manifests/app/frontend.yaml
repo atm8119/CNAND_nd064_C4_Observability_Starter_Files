@@ -3,7 +3,13 @@ kind: Deployment
 metadata:
   name: frontend-app
   annotations:
-    "sidecar.jaegertracing.io/inject": "true" 
+    "sidecar.jaegertracing.io/inject": "true"
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: frontendport
+  labels:
+    name: frontend
+    release: prometheus 
 spec:
   replicas: 3
   selector:
@@ -16,18 +22,22 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: alonsotm/reference-app_frontend:v2.0.0
+        image: alonsotm/reference-app_frontend:v2.2.4
         ports:
-        - containerPort: 8081
+        - name: frontendport
+          containerPort: 8081
+          protocol: TCP
 ---
 apiVersion: v1
 kind: Service
 metadata:
   name: frontend-service
+  labels:
+    app: frontend # service-monitor target
 spec:
   selector:
-    app: frontend
+    app: frontend # pod selection criteria
   ports:
     - port: 8081
-      targetPort: 8081
+      targetPort: frontendport
   type: LoadBalancer

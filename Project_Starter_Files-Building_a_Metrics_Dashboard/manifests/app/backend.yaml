@@ -4,6 +4,12 @@ metadata:
   name: backend-app
   annotations:
     "sidecar.jaegertracing.io/inject": "true" 
+    prometheus.io/scrape: "true"
+    prometheus.io/path: /metrics
+    prometheus.io/port: backendport
+  labels:
+    name: backend
+    release: prometheus
 spec:
   replicas: 3
   selector:
@@ -16,9 +22,12 @@ spec:
     spec:
       containers:
       - name: backend
-        image: alonsotm/reference-app_backend:v2.1.0
+        image: alonsotm/reference-app_backend:v2.2.4
+        imagePullPolicy: Always
         ports:
-        - containerPort: 8082
+        - name: backendport
+          containerPort: 8082
+          protocol: TCP
         env:
         - name: MONGODB_ROOT_PASSWORD
           valueFrom:
@@ -30,10 +39,12 @@ apiVersion: v1
 kind: Service
 metadata:
   name: backend-service
+  labels:
+    app: backend # service-monitor target
 spec:
   selector:
-    app: backend
+    app: backend # pod selection criteria
   ports:
     - port: 8082
-      targetPort: 8082
+      targetPort: backendport
   type: LoadBalancer

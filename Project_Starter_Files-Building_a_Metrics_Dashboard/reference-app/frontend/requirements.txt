@@ -7,3 +7,4 @@ opentelemetry-sdk
 opentelemetry-instrumentation
 opentelemetry-exporter-jaeger
 opentelemetry-distro
+prometheus_flask_exporter

@@ -1,10 +1,12 @@
 from flask import Flask, render_template, request, jsonify
-import requests, logging
+import logging, requests
 
 from flask_pymongo import PyMongo
 
 # Monitoring
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_flask_exporter.multiprocess import GunicornPrometheusMetrics
+
 # Tracing
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -16,9 +18,19 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 app = Flask(__name__)
 
-# -- Monitoring: Define static Monitoring metrics --
+# -- Monitoring: Define Monitoring metrics --
 metrics = PrometheusMetrics(app)
-metrics.info("app_info", "Application info", version="2.0.0")
+#metrics = GunicornPrometheusMetrics(app)
+metrics.info("app_info", "Application info", version="1.0.3")
+# Sample custom metrics (unused since there are no outgoing requests)
+record_requests_by_status = metrics.summary(
+    'requests_by_status', 'Request latencies by status',
+    labels={'status': lambda: request.status_code()}
+)
+record_page_visits = metrics.counter(
+    'invocation_by_type', 'Number of invocations by type',
+    labels={'item_type': lambda: request.view_args['type']}
+)
 
 # -- Observability: Prep app for tracing -- 
 FlaskInstrumentor().instrument_app(app)
@@ -54,10 +66,7 @@ logging.basicConfig(format="%(message)s", level=logging.DEBUG)
 logger = logging.getLogger(__name__)
 
 # -- Database route configuration --
-app.config["MONGO_DBNAME"] = "example-mongodb"
-app.config[
-    "MONGO_URI"
-] = "mongodb://example-mongodb-svc.default.svc.cluster.local:27017/example-mongodb"
+app.config["MONGO_URI"] = "mongodb://example-mongodb-svc.default.svc.cluster.local:27017/example-mongodb"
 mongo = PyMongo(app)
 
 # -- Application Body: Routes and Logic --
@@ -85,7 +94,6 @@ def add_star():
                 new_star = star.find_one({"_id": star_id})
         output = {"name": new_star["name"], "distance": new_star["distance"]}
     return jsonify({"result": output})
-
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8082)

@@ -3,9 +3,10 @@ import re
 import requests
 
 
-from flask import Flask, jsonify, render_template
+from flask import Flask, jsonify, render_template, request
 
 from prometheus_flask_exporter import PrometheusMetrics
+from prometheus_flask_exporter.multiprocess import GunicornPrometheusMetrics
 
 from opentelemetry import trace
 from opentelemetry.exporter.jaeger.thrift import JaegerExporter
@@ -17,9 +18,19 @@ from opentelemetry.instrumentation.requests import RequestsInstrumentor
 
 app = Flask(__name__, template_folder='templates')
 
-# -- Monitoring: Define static Monitoring metrics --
+# -- Monitoring: Define Monitoring metrics --
 metrics = PrometheusMetrics(app)
-metrics.info("app_info", "Application info", version="2.0.0")
+#metrics = GunicornPrometheusMetrics(app)
+metrics.info("app_info", "Application info", version="1.0.3")
+# Sample custom metrics (unused since there are no outgoing requests)
+record_requests_by_status = metrics.summary(
+        'requests_by_status', 'Request latencies by status',
+        labels={'status': lambda: request.status_code()}
+)
+record_page_visits = metrics.counter(
+    'invocation_by_type', 'Number of invocations by type',
+    labels={'item_type': lambda: request.view_args['type']}
+)
 
 # -- Observability: Prep app for tracing -- 
 FlaskInstrumentor().instrument_app(app)
@@ -97,6 +108,5 @@ def trace():
 
     return jsonify(jobs_info)
 
-
 if __name__ == "__main__":
-    app.run(debug=True,)
+    app.run(debug=True, host="0.0.0.0", port="8083")

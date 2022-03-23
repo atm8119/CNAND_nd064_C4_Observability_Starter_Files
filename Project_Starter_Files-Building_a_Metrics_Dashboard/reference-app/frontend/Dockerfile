@@ -7,10 +7,13 @@ ENV APP_HOME /app
 WORKDIR $APP_HOME
 COPY . ./
 
+# Directories for gunicorn to work properly:
+ENV PROMETHEUS_MULTIPROC_DIR /tmp
+
 # Install production dependencies.
 RUN apt-get update && \
     pip install --upgrade pip && \
     pip install -r requirements.txt
 
 EXPOSE 8081
-CMD ["gunicorn", "--access-logfile", "-", "--error-logfile", "-", "-w", "4", "-b", "0.0.0.0:8081", "app:app"]
+CMD ["gunicorn", "-c", "config.py", "--access-logfile", "-", "--error-logfile", "-", "-w", "4", "-b", "0.0.0.0:8081", "app:app"]
