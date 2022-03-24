@@ -7,6 +7,9 @@ metadata:
     prometheus.io/scrape: "true"
     prometheus.io/path: /metrics
     prometheus.io/port: trialport
+  labels:
+    name: trial
+    release: prometheus
 spec:
   replicas: 3
   selector:
@@ -18,11 +21,16 @@ spec:
         app: trial
     spec:
       containers:
-      - name: trial
-        image: alonsotm/reference-app_trial:v2.2.4
+      - env:
+        - name: JAEGER_HOST
+          value: jaeger-operator-metrics.observability.svc.cluster.local
+        name: trial
+        image: alonsotm/reference-app_trial:v2.2.6
+        imagePullPolicy: Always
         ports:
         - name: trialport
           containerPort: 8083
+          protocol: TCP
 ---
 apiVersion: v1
 kind: Service
@@ -34,6 +42,8 @@ spec:
   selector:
     app: trial # pod selection criteria
   ports:
-    - port: 8083
+    - name: trial # must exist for prometheus scraping
+      port: 8083
+      protocol: TCP
       targetPort: trialport
   type: LoadBalancer

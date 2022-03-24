@@ -20,9 +20,9 @@ app = Flask(__name__)
 
 # -- Monitoring: Define Monitoring metrics --
 metrics = PrometheusMetrics(app)
-#metrics = GunicornPrometheusMetrics(app)
+# metrics = GunicornPrometheusMetrics(app)
 metrics.info("app_info", "Application info", version="1.0.3")
-# Sample custom metrics (unused since there are no outgoing requests)
+# -- -- Sample custom metrics (unused since there are no outgoing requests)
 record_requests_by_status = metrics.summary(
     'requests_by_status', 'Request latencies by status',
     labels={'status': lambda: request.status_code()}
@@ -94,6 +94,18 @@ def add_star():
                 new_star = star.find_one({"_id": star_id})
         output = {"name": new_star["name"], "distance": new_star["distance"]}
     return jsonify({"result": output})
+
+@app.route("/success-response")
+def client_error_page():
+    return "Planned 200 response", 200
+
+@app.route("/client-error")
+def client_error_page():
+    return "Planned 400 error", 400
+
+@app.route("/server-error")
+def server_error_page():
+    return "Planned 500 error", 500
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=8082)

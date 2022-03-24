@@ -20,9 +20,9 @@ app = Flask(__name__, template_folder='templates')
 
 # -- Monitoring: Define Monitoring metrics --
 metrics = PrometheusMetrics(app)
-#metrics = GunicornPrometheusMetrics(app)
+# metrics = GunicornPrometheusMetrics(app)
 metrics.info("app_info", "Application info", version="1.0.3")
-# Sample custom metrics (unused since there are no outgoing requests)
+# -- --Sample custom metrics (unused since there are no outgoing requests)
 record_requests_by_status = metrics.summary(
         'requests_by_status', 'Request latencies by status',
         labels={'status': lambda: request.status_code()}
@@ -70,7 +70,6 @@ logger = logging.getLogger(__name__)
 def homepage():
     return render_template("main.html")
 
-
 @app.route("/trace")
 def trace():
     def remove_tags(text):
@@ -105,8 +104,19 @@ def trace():
                     logger.error(f"Unable to get site for {result['company']}")
                     site_span.set_tag("http.status_code", res.status_code)
                     site_span.set_tag("company-site", result["company"])
-
     return jsonify(jobs_info)
+
+@app.route("/success-response")
+def client_error_page():
+    return "Planned 200 response", 200
+
+@app.route("/client-error")
+def client_error_page():
+    return "Planned 400 error", 400
+
+@app.route("/server-error")
+def server_error_page():
+    return "Planned 500 error", 500
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0", port="8083")

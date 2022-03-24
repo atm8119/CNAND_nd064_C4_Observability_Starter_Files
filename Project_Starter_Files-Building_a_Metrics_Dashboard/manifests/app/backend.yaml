@@ -20,20 +20,17 @@ spec:
       labels:
         app: backend
     spec:
-      containers:
-      - name: backend
-        image: alonsotm/reference-app_backend:v2.2.4
+      containers: 
+      - env:
+        - name: JAEGER_HOST
+          value: jaeger-operator-metrics.observability.svc.cluster.local
+        name: backend
+        image: alonsotm/reference-app_backend:v2.2.6
         imagePullPolicy: Always
         ports:
         - name: backendport
           containerPort: 8082
           protocol: TCP
-        env:
-        - name: MONGODB_ROOT_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: my-mongodb-user-password
-              key: password
 ---
 apiVersion: v1
 kind: Service
@@ -45,6 +42,8 @@ spec:
   selector:
     app: backend # pod selection criteria
   ports:
-    - port: 8082
+    - name: backend # must exist for prometheus scraping
+      port: 8082
+      protocol: TCP
       targetPort: backendport
   type: LoadBalancer

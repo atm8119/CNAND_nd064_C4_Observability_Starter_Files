@@ -21,8 +21,12 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: alonsotm/reference-app_frontend:v2.2.4
+      - env:
+        - name: JAEGER_HOST
+          value: jaeger-operator-metrics.observability.svc.cluster.local
+        name: frontend
+        image: alonsotm/reference-app_frontend:v2.2.6
+        imagePullPolicy: Always
         ports:
         - name: frontendport
           containerPort: 8081
@@ -38,6 +42,8 @@ spec:
   selector:
     app: frontend # pod selection criteria
   ports:
-    - port: 8081
+    - name: frontend # must exist for prometheus scraping
+      port: 8081
+      protocol: TCP
       targetPort: frontendport
   type: LoadBalancer

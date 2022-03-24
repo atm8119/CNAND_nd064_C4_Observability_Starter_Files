@@ -4,7 +4,9 @@ pylint
 gunicorn
 opentelemetry-api
 opentelemetry-sdk
-opentelemetry-instrumentation
 opentelemetry-exporter-jaeger
+opentelemetry-instrumentation
 opentelemetry-distro
-prometheus_flask_exporter
+opentelemetry-instrumentation-flask
+opentelemetry-instrumentation-requests
+prometheus-flask-exporter
